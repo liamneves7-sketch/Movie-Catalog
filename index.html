@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A-Z Movie Collection Catalog - Rapid Batch Scanner & Shelf Printer</title>
+  <script src="https://unpkg.com/@zxing/library@latest"></script>
+  <style>
+    :root {
+      --bg: #090d16;
+      --surface: #131b2e;
+      --surface-light: #1e293b;
+      --surface-hover: #27354f;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-hover: #0ea5e9;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --border: #223049;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 2rem 1rem;
+      max-width: 1050px;
+      margin: 0 auto;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.025em; }
+    .stats {
+      background: var(--surface);
+      padding: 0.4rem 0.9rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      color: var(--accent);
+      font-weight: 600;
+      border: 1px solid var(--border);
+    }
+    .card {
+      background: var(--surface);
+      padding: 1.25rem;
+      border-radius: 0.75rem;
+      border: 1px solid var(--border);
+      margin-bottom: 1.25rem;
+    }
+    .api-banner {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      background: rgba(56, 189, 248, 0.08);
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      font-size: 0.85rem;
+      flex-wrap: wrap;
+    }
+    .api-banner input {
+      padding: 0.35rem 0.6rem;
+      font-size: 0.85rem;
+      width: 130px;
+    }
+    .api-banner a { color: var(--accent); text-decoration: none; font-weight: 600; }
+
+    /* Scanner Modal */
+    #scannerModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.88);
+      z-index: 1000;
+      padding: 1rem;
+      align-items: center;
+      justify-content: center;
+    }
+    #scannerBox {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0.85rem;
+      padding: 1.25rem;
+      width: 100%;
+      max-width: 580px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+    .scanner-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .viewport-wrapper {
+      position: relative;
+      overflow: hidden;
+      border-radius: 0.5rem;
+      background: #000;
+      width: 100%;
+      height: 260px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #videoPreview {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .scanner-target {
+      position: absolute;
+      width: 240px;
+      height: 120px;
+      border: 2px dashed var(--accent);
+      border-radius: 8px;
+      pointer-events: none;
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.4);
+      transition: border-color 0.15s, transform 0.15s;
+    }
+    .scanner-target.scanned {
+      border-color: var(--success);
+      transform: scale(1.04);
+    }
+    .scanner-bar-controls {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+    }
+    .batch-feed {
+      max-height: 140px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      background: var(--bg);
+      padding: 0.5rem;
+      border-radius: 0.4rem;
+      border: 1px solid var(--border);
+      font-size: 0.8rem;
+    }
+    .feed-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.35rem 0.5rem;
+      background: var(--surface);
+      border-radius: 0.3rem;
+      border-left: 3px solid var(--accent);
+    }
+    .feed-item.dup { border-left-color: var(--warning); }
+    .feed-item.err { border-left-color: var(--danger); }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+    .form-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    @media (max-width: 768px) {
+      .form-grid { grid-template-columns: 1fr; }
+    }
+    input, select, button {
+      padding: 0.65rem 0.85rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+    input:focus, select:focus {
+      outline: 2px solid var(--accent);
+      border-color: transparent;
+    }
+    button {
+      background: var(--accent);
+      color: #041221;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+    }
+    button:hover { background: var(--accent-hover); color: var(--text); }
+    .btn-secondary {
+      background: var(--surface-light);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-secondary:hover { background: var(--surface-hover); }
+    .btn-batch {
+      background: #10b981;
+      color: #041221;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .btn-batch:hover { background: #059669; color: #fff; }
+    .btn-print {
+      background: #8b5cf6;
+      color: #fff;
+    }
+    .btn-print:hover { background: #7c3aed; }
+    .btn-danger {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--danger);
+      padding: 0.3rem 0.6rem;
+      font-size: 0.75rem;
+    }
+    .btn-danger:hover { background: var(--danger); color: var(--text); border-color: var(--danger); }
+    .controls {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .controls input[type="text"] { flex: 1; min-width: 200px; }
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+    }
+    .az-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+      margin-bottom: 1.75rem;
+      background: var(--surface);
+      padding: 0.6rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--border);
+      justify-content: center;
+    }
+    .az-btn {
+      background: transparent;
+      color: var(--text-muted);
+      padding: 0.25rem 0.55rem;
+      font-size: 0.8rem;
+      border-radius: 0.25rem;
+      font-weight: 600;
+    }
+    .az-btn.active { color: var(--accent); background: rgba(56, 189, 248, 0.12); }
+    .az-btn.selected { background: var(--accent); color: #041221; }
+    .az-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+    .letter-section { margin-bottom: 2rem; }
+    .letter-header {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--accent);
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 0.35rem;
+      margin-bottom: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+    .letter-count { font-size: 0.8rem; color: var(--text-muted); font-weight: 400; }
+    .movie-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 0.85rem;
+    }
+    .movie-item {
+      display: flex;
+      gap: 0.85rem;
+      background: var(--surface);
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--border);
+      align-items: center;
+      position: relative;
+    }
+    .poster-img {
+      width: 48px;
+      height: 70px;
+      border-radius: 0.35rem;
+      object-fit: cover;
+      background: #020617;
+      flex-shrink: 0;
+      border: 1px solid var(--border);
+    }
+    .movie-details {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      overflow: hidden;
+      flex: 1;
+    }
+    .movie-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .meta-badges { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .badge {
+      font-size: 0.72rem;
+      padding: 0.1rem 0.4rem;
+      border-radius: 0.25rem;
+      background: var(--bg);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+    .badge-format { color: var(--accent); border-color: rgba(56, 189, 248, 0.3); }
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-muted);
+      background: var(--surface);
+      border-radius: 0.75rem;
+      border: 1px dashed var(--border);
+    }
+    .status-msg { font-size: 0.8rem; color: var(--text-muted); }
+
+    /* Physical Shelf Print Preview Overlay */
+    #printOverlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: #0b1120;
+      z-index: 2000;
+      overflow-y: auto;
+      padding: 2rem 1rem;
+    }
+    .print-dialog {
+      max-width: 900px;
+      margin: 0 auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+    }
+    .print-dialog-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .print-options {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .print-surface-preview {
+      background: #ffffff;
+      color: #000000;
+      padding: 1.5rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Print Template 1: Shelf Dividers */
+    .divider-sheet {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+    .shelf-divider-card {
+      border: 2px dashed #334155;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 160px;
+      page-break-inside: avoid;
+    }
+    .divider-big-letter {
+      font-size: 3.5rem;
+      font-weight: 900;
+      line-height: 1;
+      color: #0f172a;
+    }
+    .divider-info {
+      font-size: 0.75rem;
+      color: #475569;
+      border-top: 1px solid #cbd5e1;
+      padding-top: 0.35rem;
+    }
+
+    /* Print Template 2: Case Spine Labels */
+    .spine-sheet {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .spine-label {
+      width: 32px;
+      height: 480px;
+      border: 1px dashed #64748b;
+      padding: 0.35rem 0.2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #0f172a;
+      page-break-inside: avoid;
+    }
+    .spine-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-height: 340px;
+    }
+    .spine-meta {
+      font-size: 0.65rem;
+      color: #475569;
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    /* Standard Browser Print Stylesheet */
+    @media print {
+      body * {
+        visibility: hidden !important;
+      }
+      #printArea, #printArea * {
+        visibility: visible !important;
+      }
+      #printArea {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+        padding: 0 !important;
+      }
+      .shelf-divider-card, .spine-label {
+        border-color: #000000 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Physical Shelf Print / Spine Layout Modal -->
+  <div id="printOverlay">
+    <div class="print-dialog">
+      <div class="print-dialog-header">
+        <h2>🖨️ Shelf Dividers & Spine Labels</h2>
+        <button type="button" class="btn-secondary" onclick="closePrintView()">Close</button>
+      </div>
+
+      <div class="print-options">
+        <label><strong>Print Mode:</strong></label>
+        <select id="printModeSelect" onchange="renderPrintTemplate()">
+          <option value="dividers">A–Z Shelf Divider Cards (Cardstock Tab Inserts)</option>
+          <option value="spines">Physical Case Spine Labels (Vertical Shelf Strips)</option>
+        </select>
+        <button type="button" class="btn-print" onclick="window.print()">Print / Save PDF</button>
+      </div>
+
+      <div class="print-surface-preview">
+        <div id="printArea"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Continuous Rapid Batch Scanner Modal -->
+  <div id="scannerModal">
+    <div id="scannerBox">
+      <div class="scanner-header">
+        <h3 style="display: flex; align-items: center; gap: 0.5rem;">
+          <span>⚡ Continuous Batch Scanner</span>
+        </h3>
+        <span id="sessionCounter" class="stats" style="color: var(--success); border-color: rgba(34, 197, 94, 0.3);">0 scanned this session</span>
+      </div>
+
+      <div class="viewport-wrapper">
+        <video id="videoPreview"></video>
+        <div class="scanner-target" id="scannerTarget"></div>
+      </div>
+
+      <div class="scanner-bar-controls">
+        <div style="display: flex; align-items: center; gap: 0.4rem;">
+          <label for="batchDefaultFormat">Default Format:</label>
+          <select id="batchDefaultFormat" style="padding: 0.3rem 0.5rem; font-size: 0.8rem;">
+            <option value="AUTO">Auto-Detect / Keep Best</option>
+            <option value="4K UHD">4K UHD</option>
+            <option value="Blu-ray" selected>Blu-ray</option>
+            <option value="DVD">DVD</option>
+            <option value="Digital">Digital</option>
+            <option value="VHS">VHS</option>
+          </select>
+        </div>
+        <button type="button" class="btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" onclick="stopBatchScanner()">Finish Batch</button>
+      </div>
+
+      <div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem;">Live Scan Activity:</div>
+        <div class="batch-feed" id="batchFeed">
+          <div style="color: var(--text-muted); font-style: italic;">Point camera at barcodes one after another. Ready...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <header>
+    <h1>🎬 A–Z Movie Collection</h1>
+    <div class="stats" id="movieStats">0 Movies</div>
+  </header>
+
+  <div class="card">
+    <div class="api-banner">
+      <span>🔑 <strong>OMDb API Key:</strong></span>
+      <input type="text" id="apiKeyInput" placeholder="Enter API Key">
+      <span style="color: var(--text-muted); font-size: 0.8rem;">(Get a free 1,000 req/day key at <a href="https://www.omdbapi.com/apikey.aspx" target="_blank">omdbapi.com</a>)</span>
+    </div>
+
+    <form id="movieForm">
+      <div class="form-grid">
+        <input type="text" id="titleInput" placeholder="Movie Title (e.g., Alien, The Thing)" required>
+        <select id="formatInput">
+          <option value="4K UHD">4K UHD</option>
+          <option value="Blu-ray" selected>Blu-ray</option>
+          <option value="DVD">DVD</option>
+          <option value="Digital">Digital</option>
+          <option value="VHS">VHS</option>
+        </select>
+        <input type="number" id="yearInput" placeholder="Year" min="1888" max="2099">
+        <input type="text" id="genreInput" placeholder="Genre">
+      </div>
+      <div class="form-actions">
+        <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+          <button type="button" class="btn-batch" onclick="startBatchScanner()">⚡ Rapid Batch Scan</button>
+          <button type="button" class="btn-secondary" id="lookupBtn" onclick="lookupMovieManual()">🔍 Title Search</button>
+          <span class="status-msg" id="lookupStatus"></span>
+        </div>
+        <button type="submit">+ Add Movie</button>
+      </div>
+      <input type="hidden" id="posterUrlInput">
+      <input type="hidden" id="barcodeInput">
+    </form>
+  </div>
+
+  <div class="controls">
+    <input type="text" id="searchInput" placeholder="Search collection by title, genre, year, or UPC...">
+    <select id="filterFormat">
+      <option value="ALL">All Formats</option>
+      <option value="4K UHD">4K UHD</option>
+      <option value="Blu-ray">Blu-ray</option>
+      <option value="DVD">DVD</option>
+      <option value="Digital">Digital</option>
+      <option value="VHS">VHS</option>
+    </select>
+    <label class="checkbox-label">
+      <input type="checkbox" id="ignoreArticles" checked>
+      Ignore "The / A / An"
+    </label>
+    <button type="button" class="btn-print" onclick="openPrintView()">🖨️ Print Shelf Dividers & Spines</button>
+    <button type="button" class="btn-secondary" onclick="exportCSV()">Export CSV</button>
+    <button type="button" class="btn-secondary" onclick="document.getElementById('csvFileInput').click()">Import CSV</button>
+    <input type="file" id="csvFileInput" accept=".csv" style="display:none" onchange="importCSV(event)">
+  </div>
+
+  <div class="az-bar" id="azBar"></div>
+  <div id="catalogContainer"></div>
+
+  <script>
+    let movies = JSON.parse(localStorage.getItem('myMoviesAZ')) || [];
+    let currentLetterFilter = 'ALL';
+    let codeReader = null;
+    let audioCtx = null;
+    let sessionCount = 0;
+
+    let lastScannedCode = null;
+    let lastScannedTime = 0;
+    const SCAN_DEBOUNCE_MS = 2800;
+
+    const apiKeyInput = document.getElementById('apiKeyInput');
+    const form = document.getElementById('movieForm');
+    const titleInput = document.getElementById('titleInput');
+    const formatInput = document.getElementById('formatInput');
+    const yearInput = document.getElementById('yearInput');
+    const genreInput = document.getElementById('genreInput');
+    const posterUrlInput = document.getElementById('posterUrlInput');
+    const barcodeInput = document.getElementById('barcodeInput');
+    const searchInput = document.getElementById('searchInput');
+    const filterFormat = document.getElementById('filterFormat');
+    const ignoreArticlesCheckbox = document.getElementById('ignoreArticles');
+    const lookupStatus = document.getElementById('lookupStatus');
+    const scannerModal = document.getElementById('scannerModal');
+    const scannerTarget = document.getElementById('scannerTarget');
+    const batchFeed = document.getElementById('batchFeed');
+    const sessionCounter = document.getElementById('sessionCounter');
+    const batchDefaultFormat = document.getElementById('batchDefaultFormat');
+    const printOverlay = document.getElementById('printOverlay');
+    const printArea = document.getElementById('printArea');
+    const printModeSelect = document.getElementById('printModeSelect');
+
+    apiKeyInput.value = localStorage.getItem('omdbApiKey') || '';
+    apiKeyInput.addEventListener('input', () => {
+      localStorage.setItem('omdbApiKey', apiKeyInput.value.trim());
+    });
+
+    function playBeep(success = true) {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(success ? 1760 : 440, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + (success ? 0.12 : 0.25));
+        osc.start();
+        osc.stop(audioCtx.currentTime + (success ? 0.13 : 0.26));
+      } catch (e) {}
+    }
+
+    function addFeedMessage(text, type = 'info') {
+      const item = document.createElement('div');
+      item.className = `feed-item ${type === 'dup' ? 'dup' : type === 'err' ? 'err' : ''}`;
+      item.innerHTML = text;
+      batchFeed.prepend(item);
+    }
+
+    function cleanBarcodeTitle(rawTitle) {
+      return rawTitle
+        .replace(/\[.*?\]|\(.*?\)/g, '')
+        .replace(/\b(blu-ray|dvd|4k|uhd|combo pack|widescreen|edition|digital hd|steelbook)\b/gi, '')
+        .replace(/\s{2,}/g, ' ')
+        .trim();
+    }
+
+    async function processBatchScan(upc) {
+      const now = Date.now();
+      if (upc === lastScannedCode && (now - lastScannedTime) < SCAN_DEBOUNCE_MS) {
+        return;
+      }
+
+      lastScannedCode = upc;
+      lastScannedTime = now;
+
+      scannerTarget.classList.add('scanned');
+      setTimeout(() => scannerTarget.classList.remove('scanned'), 400);
+
+      const existing = movies.find(m => m.upc === upc);
+      if (existing) {
+        playBeep(false);
+        addFeedMessage(`⚠️ <strong>Already in collection:</strong> ${existing.title} (#${upc})`, 'dup');
+        return;
+      }
+
+      playBeep(true);
+      addFeedMessage(`🔍 Scanned #${upc}. Querying UPC database...`);
+
+      try {
+        const upcRes = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${encodeURIComponent(upc)}`);
+        const upcData = await upcRes.json();
+
+        if (upcData.items && upcData.items.length > 0) {
+          const item = upcData.items[0];
+          const rawTitle = item.title;
+          const cleanedTitle = cleanBarcodeTitle(rawTitle);
+
+          let detectedFormat = 'Blu-ray';
+          if (batchDefaultFormat.value !== 'AUTO') {
+            detectedFormat = batchDefaultFormat.value;
+          } else {
+            if (/4k|uhd/i.test(rawTitle)) detectedFormat = '4K UHD';
+            else if (/blu-ray|bd/i.test(rawTitle)) detectedFormat = 'Blu-ray';
+            else if (/dvd/i.test(rawTitle)) detectedFormat = 'DVD';
+          }
+
+          let movieYear = '';
+          let movieGenre = '';
+          let moviePoster = '';
+          let finalTitle = cleanedTitle;
+
+          const apiKey = apiKeyInput.value.trim();
+          if (apiKey) {
+            try {
+              const omdbRes = await fetch(`https://www.omdbapi.com/?t=${encodeURIComponent(cleanedTitle)}&apikey=${apiKey}`);
+              const omdbData = await omdbRes.json();
+              if (omdbData.Response === 'True') {
+                finalTitle = omdbData.Title;
+                movieYear = omdbData.Year ? omdbData.Year.substring(0, 4) : '';
+                movieGenre = omdbData.Genre !== 'N/A' ? omdbData.Genre : '';
+                moviePoster = omdbData.Poster !== 'N/A' ? omdbData.Poster : '';
+              }
+            } catch (e) {}
+          }
+
+          movies.push({
+            id: Date.now().toString() + Math.random().toString(36).substr(2, 4),
+            title: finalTitle,
+            format: detectedFormat,
+            genre: movieGenre,
+            year: movieYear,
+            poster: moviePoster,
+            upc: upc
+          });
+
+          sessionCount++;
+          sessionCounter.textContent = `${sessionCount} scanned this session`;
+          saveMovies();
+
+          addFeedMessage(`✅ <strong>Added:</strong> ${finalTitle} (${detectedFormat}${movieYear ? ', ' + movieYear : ''})`);
+        } else {
+          addFeedMessage(`❌ UPC #${upc} recognized, but title not found in product database.`, 'err');
+        }
+      } catch (err) {
+        addFeedMessage(`❌ Network error while looking up UPC #${upc}.`, 'err');
+      }
+    }
+
+    async function startBatchScanner() {
+      sessionCount = 0;
+      sessionCounter.textContent = `0 scanned this session`;
+      scannerModal.style.display = 'flex';
+      batchFeed.innerHTML = '<div style="color: var(--text-muted); font-style: italic;">Ready! Point camera at barcodes continuously...</div>';
+
+      if (!codeReader) {
+        codeReader = new ZXing.BrowserMultiFormatReader();
+      }
+
+      try {
+        const videoInputDevices = await codeReader.listVideoInputDevices();
+        if (videoInputDevices.length === 0) {
+          alert('No camera found on this device.');
+          stopBatchScanner();
+          return;
+        }
+
+        let selectedDeviceId = videoInputDevices[0].deviceId;
+        for (const device of videoInputDevices) {
+          if (/back|rear|environment/i.test(device.label)) {
+            selectedDeviceId = device.deviceId;
+            break;
+          }
+        }
+
+        await codeReader.decodeFromVideoDevice(selectedDeviceId, 'videoPreview', (result, err) => {
+          if (result) {
+            processBatchScan(result.getText());
+          }
+        });
+      } catch (err) {
+        alert('Could not start camera: ' + err.message);
+        stopBatchScanner();
+      }
+    }
+
+    function stopBatchScanner() {
+      if (codeReader) codeReader.reset();
+      scannerModal.style.display = 'none';
+    }
+
+    async function lookupMovieManual() {
+      const title = titleInput.value.trim();
+      const apiKey = apiKeyInput.value.trim();
+
+      if (!title) {
+        lookupStatus.textContent = 'Enter a title first.';
+        return;
+      }
+      if (!apiKey) {
+        lookupStatus.textContent = 'Enter your OMDb API key in the top box.';
+        apiKeyInput.focus();
+        return;
+      }
+
+      lookupStatus.textContent = 'Searching OMDb...';
+
+      try {
+        const res = await fetch(`https://www.omdbapi.com/?t=${encodeURIComponent(title)}&apikey=${apiKey}`);
+        const data = await res.json();
+
+        if (data.Response === 'True') {
+          titleInput.value = data.Title;
+          yearInput.value = data.Year ? data.Year.substring(0, 4) : '';
+          genreInput.value = data.Genre !== 'N/A' ? data.Genre : '';
+          posterUrlInput.value = data.Poster !== 'N/A' ? data.Poster : '';
+          lookupStatus.textContent = '✓ Data found!';
+        } else {
+          lookupStatus.textContent = data.Error || 'Movie not found in OMDb.';
+        }
+      } catch (err) {
+        lookupStatus.textContent = 'OMDb lookup failed.';
+      }
+    }
+
+    function getSortTitle(title) {
+      let t = title.trim();
+      if (ignoreArticlesCheckbox.checked) {
+        return t.replace(/^(the|a|an)\s+/i, '');
+      }
+      return t;
+    }
+
+    function getGroupLetter(title) {
+      const sortTitle = getSortTitle(title);
+      if (!sortTitle) return '#';
+      const firstChar = sortTitle.charAt(0).toUpperCase();
+      return /^[A-Z]$/.test(firstChar) ? firstChar : '#';
+    }
+
+    function saveMovies() {
+      localStorage.setItem('myMoviesAZ', JSON.stringify(movies));
+      render();
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const title = titleInput.value.trim();
+      if (!title) return;
+
+      movies.push({
+        id: Date.now().toString(),
+        title,
+        format: formatInput.value,
+        genre: genreInput.value.trim(),
+        year: yearInput.value.trim(),
+        poster: posterUrlInput.value.trim(),
+        upc: barcodeInput.value.trim()
+      });
+
+      const lastFormat = formatInput.value;
+      form.reset();
+      formatInput.value = lastFormat;
+      posterUrlInput.value = '';
+      barcodeInput.value = '';
+      lookupStatus.textContent = '';
+      titleInput.focus();
+      saveMovies();
+    });
+
+    function deleteMovie(id) {
+      movies = movies.filter(m => m.id !== id);
+      saveMovies();
+    }
+
+    function setLetterFilter(letter) {
+      currentLetterFilter = letter;
+      render();
+    }
+
+    // Physical Print and Layout Generator
+    function openPrintView() {
+      printOverlay.style.display = 'block';
+      renderPrintTemplate();
+    }
+
+    function closePrintView() {
+      printOverlay.style.display = 'none';
+    }
+
+    function renderPrintTemplate() {
+      const mode = printModeSelect.value;
+      const sorted = [...movies].sort((a, b) => getSortTitle(a.title).localeCompare(getSortTitle(b.title), undefined, { numeric: true, sensitivity: 'base' }));
+
+      printArea.innerHTML = '';
+
+      if (sorted.length === 0) {
+        printArea.innerHTML = '<p style="text-align: center; color: #64748b; padding: 2rem;">No movies in library to generate print sheets.</p>';
+        return;
+      }
+
+      if (mode === 'dividers') {
+        const alphabet = ['#', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')];
+        const grouped = {};
+        alphabet.forEach(l => grouped[l] = []);
+        sorted.forEach(m => grouped[getGroupLetter(m.title)].push(m));
+
+        const container = document.createElement('div');
+        container.className = 'divider-sheet';
+
+        alphabet.forEach(letter => {
+          const list = grouped[letter];
+          if (list.length === 0) return;
+
+          const card = document.createElement('div');
+          card.className = 'shelf-divider-card';
+
+          const firstTitle = list[0].title;
+          const lastTitle = list[list.length - 1].title;
+
+          card.innerHTML = `
+            <div>
+              <div class="divider-big-letter">${letter}</div>
+              <div style="font-weight: 700; font-size: 0.95rem; margin-top: -0.25rem;">SECTION ${letter}</div>
+            </div>
+            <div class="divider-info">
+              <div><strong>${list.length}</strong> ${list.length === 1 ? 'Title' : 'Titles'}</div>
+              <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.7rem; color: #64748b;">
+                ${firstTitle} → ${lastTitle}
+              </div>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+
+        printArea.appendChild(container);
+      } else if (mode === 'spines') {
+        const container = document.createElement('div');
+        container.className = 'spine-sheet';
+
+        sorted.forEach(movie => {
+          const spine = document.createElement('div');
+          spine.className = 'spine-label';
+
+          spine.innerHTML = `
+            <div class="spine-title">${movie.title}</div>
+            <div class="spine-meta">
+              <span>${movie.format}</span>
+              ${movie.year ? `<span>• ${movie.year}</span>` : ''}
+              ${movie.upc ? `<span>• #${movie.upc}</span>` : ''}
+            </div>
+          `;
+          container.appendChild(spine);
+        });
+
+        printArea.appendChild(container);
+      }
+    }
+
+    function render() {
+      const searchQuery = searchInput.value.toLowerCase();
+      const formatFilter = filterFormat.value;
+
+      const filtered = movies.filter(m => {
+        const matchesSearch = m.title.toLowerCase().includes(searchQuery) ||
+                              (m.genre && m.genre.toLowerCase().includes(searchQuery)) ||
+                              (m.year && m.year.toString().includes(searchQuery)) ||
+                              (m.upc && m.upc.includes(searchQuery));
+        const matchesFormat = formatFilter === 'ALL' || m.format === formatFilter;
+        return matchesSearch && matchesFormat;
+      });
+
+      filtered.sort((a, b) => getSortTitle(a.title).localeCompare(getSortTitle(b.title), undefined, { numeric: true, sensitivity: 'base' }));
+
+      const grouped = {};
+      const alphabet = ['#', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')];
+      alphabet.forEach(l => grouped[l] = []);
+
+      filtered.forEach(m => {
+        const letter = getGroupLetter(m.title);
+        grouped[letter].push(m);
+      });
+
+      document.getElementById('movieStats').textContent = `${movies.length} Total (${filtered.length} Shown)`;
+
+      const azBar = document.getElementById('azBar');
+      azBar.innerHTML = '';
+
+      const allBtn = document.createElement('button');
+      allBtn.className = `az-btn ${currentLetterFilter === 'ALL' ? 'selected' : 'active'}`;
+      allBtn.textContent = 'ALL';
+      allBtn.onclick = () => setLetterFilter('ALL');
+      azBar.appendChild(allBtn);
+
+      alphabet.forEach(letter => {
+        const count = grouped[letter].length;
+        const btn = document.createElement('button');
+        btn.className = `az-btn ${count > 0 ? 'active' : ''} ${currentLetterFilter === letter ? 'selected' : ''}`;
+        btn.textContent = letter;
+        btn.disabled = count === 0 && currentLetterFilter !== letter;
+        btn.onclick = () => setLetterFilter(currentLetterFilter === letter ? 'ALL' : letter);
+        azBar.appendChild(btn);
+      });
+
+      const container = document.getElementById('catalogContainer');
+      container.innerHTML = '';
+
+      let hasRenderedAny = false;
+
+      alphabet.forEach(letter => {
+        if (currentLetterFilter !== 'ALL' && currentLetterFilter !== letter) return;
+        const group = grouped[letter];
+        if (group.length === 0) return;
+
+        hasRenderedAny = true;
+        const section = document.createElement('div');
+        section.className = 'letter-section';
+
+        const header = document.createElement('div');
+        header.className = 'letter-header';
+        header.innerHTML = `<span>${letter}</span> <span class="letter-count">${group.length} ${group.length === 1 ? 'title' : 'titles'}</span>`;
+        section.appendChild(header);
+
+        const grid = document.createElement('div');
+        grid.className = 'movie-grid';
+
+        group.forEach(movie => {
+          const item = document.createElement('div');
+          item.className = 'movie-item';
+
+          const img = document.createElement('img');
+          img.className = 'poster-img';
+          img.alt = movie.title;
+          img.src = movie.poster && movie.poster !== 'N/A' 
+            ? movie.poster 
+            : 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="70" viewBox="0 0 48 70" fill="%231e293b"><text x="50%" y="54%" font-size="18" text-anchor="middle" fill="%2364748b">🎬</text></svg>';
+          item.appendChild(img);
+
+          const details = document.createElement('div');
+          details.className = 'movie-details';
+
+          const titleEl = document.createElement('span');
+          titleEl.className = 'movie-title';
+          titleEl.textContent = movie.title;
+          titleEl.title = movie.title;
+          details.appendChild(titleEl);
+
+          const badges = document.createElement('div');
+          badges.className = 'meta-badges';
+
+          const formatEl = document.createElement('span');
+          formatEl.className = 'badge badge-format';
+          formatEl.textContent = movie.format;
+          badges.appendChild(formatEl);
+
+          if (movie.year) {
+            const yearEl = document.createElement('span');
+            yearEl.className = 'badge';
+            yearEl.textContent = movie.year;
+            badges.appendChild(yearEl);
+          }
+
+          if (movie.genre) {
+            const genreEl = document.createElement('span');
+            genreEl.className = 'badge';
+            genreEl.textContent = movie.genre.split(',')[0];
+            badges.appendChild(genreEl);
+          }
+
+          if (movie.upc) {
+            const upcEl = document.createElement('span');
+            upcEl.className = 'badge';
+            upcEl.textContent = '#' + movie.upc;
+            badges.appendChild(upcEl);
+          }
+
+          details.appendChild(badges);
+          item.appendChild(details);
+
+          const delBtn = document.createElement('button');
+          delBtn.className = 'btn-danger';
+          delBtn.textContent = '✕';
+          delBtn.title = 'Remove movie';
+          delBtn.onclick = () => deleteMovie(movie.id);
+
+          item.appendChild(delBtn);
+          grid.appendChild(item);
+        });
+
+        section.appendChild(grid);
+        container.appendChild(section);
+      });
+
+      if (!hasRenderedAny) {
+        container.innerHTML = `<div class="empty-state">No movies found. Start batch scanning or enter a title to build your shelf!</div>`;
+      }
+    }
+
+    function exportCSV() {
+      if (movies.length === 0) return alert('No movies to export!');
+      const headers = ['Letter', 'Title', 'Format', 'Year', 'Genre', 'UPC', 'PosterURL'];
+      const sorted = [...movies].sort((a, b) => getSortTitle(a.title).localeCompare(getSortTitle(b.title)));
+      const rows = sorted.map(m => [
+        getGroupLetter(m.title),
+        `"${(m.title || '').replace(/"/g, '""')}"`,
+        `"${(m.format || '').replace(/"/g, '""')}"`,
+        m.year || '',
+        `"${(m.genre || '').replace(/"/g, '""')}"`,
+        `"${(m.upc || '').replace(/"/g, '""')}"`,
+        `"${(m.poster || '').replace(/"/g, '""')}"`
+      ]);
+      const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'my_movie_library_az.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importCSV(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const lines = e.target.result.split(/\r?\n/).filter(line => line.trim() !== '');
+        if (lines.length <= 1) return;
+        for (let i = 1; i < lines.length; i++) {
+          const cols = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
+          const clean = cols.map(c => c.replace(/^"|"$/g, '').replace(/""/g, '"').trim());
+          const offset = clean.length >= 7 ? 1 : 0;
+          const title = clean[0 + offset];
+          if (title) {
+            movies.push({
+              id: Date.now().toString() + i,
+              title: title,
+              format: clean[1 + offset] || 'Blu-ray',
+              year: clean[2 + offset] || '',
+              genre: clean[3 + offset] || '',
+              upc: clean[4 + offset] || '',
+              poster: clean[5 + offset] || ''
+            });
+          }
+        }
+        saveMovies();
+        event.target.value = '';
+      };
+      reader.readAsText(file);
+    }
+
+    searchInput.addEventListener('input', render);
+    filterFormat.addEventListener('change', render);
+    ignoreArticlesCheckbox.addEventListener('change', render);
+
+    render();
+  </script>
+</body>
+</html>
