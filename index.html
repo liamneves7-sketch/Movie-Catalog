@@ -28,7 +28,7 @@
       color: var(--text);
       line-height: 1.5;
       padding: 1.5rem 1rem;
-      max-width: 1100px;
+      max-width: 1120px;
       margin: 0 auto;
     }
     header {
@@ -42,7 +42,7 @@
     .header-left {
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: 0.75rem;
       flex-wrap: wrap;
     }
     h1 { font-size: 1.65rem; font-weight: 700; letter-spacing: -0.025em; }
@@ -54,9 +54,9 @@
     }
     .stats {
       background: var(--surface);
-      padding: 0.4rem 0.9rem;
+      padding: 0.4rem 0.85rem;
       border-radius: 999px;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       color: var(--accent);
       font-weight: 600;
       border: 1px solid var(--border);
@@ -132,8 +132,8 @@
     /* Form Layout */
     .form-grid {
       display: grid;
-      grid-template-columns: 2fr 1fr 1fr 0.8fr 1fr;
-      gap: 0.65rem;
+      grid-template-columns: 1.8fr 1.1fr 0.9fr 1fr 0.7fr 1fr;
+      gap: 0.6rem;
       margin-bottom: 0.75rem;
     }
     .form-actions {
@@ -143,17 +143,17 @@
       gap: 0.75rem;
       flex-wrap: wrap;
     }
-    @media (max-width: 820px) {
+    @media (max-width: 900px) {
       .form-grid { grid-template-columns: 1fr 1fr; }
       .form-grid input:first-child { grid-column: span 2; }
     }
     input, select, button {
-      padding: 0.6rem 0.8rem;
+      padding: 0.6rem 0.75rem;
       border-radius: 0.5rem;
       border: 1px solid var(--border);
       background: var(--bg);
       color: var(--text);
-      font-size: 0.88rem;
+      font-size: 0.86rem;
     }
     input:focus, select:focus {
       outline: 2px solid var(--accent);
@@ -197,29 +197,57 @@
       padding: 0.45rem 0.85rem;
     }
     .btn-sync:hover { background: #0369a1; }
+    .card-actions {
+      display: flex;
+      gap: 0.28rem;
+      flex-shrink: 0;
+    }
+    .btn-icon {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.28rem 0.48rem;
+      font-size: 0.76rem;
+      border-radius: 0.35rem;
+    }
+    .btn-icon:hover {
+      background: var(--surface-hover);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+    .btn-watched {
+      background: rgba(34, 197, 94, 0.14);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      color: var(--success);
+    }
+    .btn-watched:hover {
+      background: rgba(34, 197, 94, 0.25);
+      color: #fff;
+    }
     .btn-danger {
       background: transparent;
       border: 1px solid var(--border);
       color: var(--danger);
-      padding: 0.28rem 0.55rem;
+      padding: 0.28rem 0.48rem;
       font-size: 0.75rem;
+      border-radius: 0.35rem;
     }
     .btn-danger:hover { background: var(--danger); color: var(--text); border-color: var(--danger); }
 
     /* Controls & A-Z Bar */
     .controls {
       display: flex;
-      gap: 0.65rem;
+      gap: 0.6rem;
       margin-bottom: 1.25rem;
       flex-wrap: wrap;
       align-items: center;
     }
-    .controls input[type="text"] { flex: 1; min-width: 200px; }
+    .controls input[type="text"] { flex: 1; min-width: 190px; }
     .checkbox-label {
       display: flex;
       align-items: center;
-      gap: 0.4rem;
-      font-size: 0.82rem;
+      gap: 0.35rem;
+      font-size: 0.8rem;
       color: var(--text-muted);
       cursor: pointer;
       user-select: none;
@@ -263,17 +291,24 @@
     .letter-count { font-size: 0.8rem; color: var(--text-muted); font-weight: 400; }
     .movie-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(325px, 1fr));
       gap: 0.8rem;
     }
     .movie-item {
       display: flex;
-      gap: 0.8rem;
+      gap: 0.75rem;
       background: var(--surface);
       padding: 0.7rem;
       border-radius: 0.5rem;
       border: 1px solid var(--border);
       align-items: center;
+      transition: border-color 0.15s;
+    }
+    .movie-item.unwatched-card {
+      border-left: 3px solid var(--warning);
+    }
+    .movie-item.watched-card {
+      border-left: 3px solid var(--success);
     }
     .poster-img {
       width: 46px;
@@ -298,17 +333,20 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .meta-badges { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+    .meta-badges { display: flex; gap: 0.32rem; flex-wrap: wrap; }
     .badge {
-      font-size: 0.7rem;
-      padding: 0.1rem 0.4rem;
+      font-size: 0.68rem;
+      padding: 0.08rem 0.38rem;
       border-radius: 0.25rem;
       background: var(--bg);
       color: var(--text-muted);
       border: 1px solid var(--border);
     }
     .badge-format { color: var(--accent); border-color: rgba(56, 189, 248, 0.3); }
+    .badge-franchise { color: #fbbf24; border-color: rgba(251, 191, 36, 0.35); }
     .badge-season { color: #d8b4fe; border-color: rgba(168, 85, 247, 0.4); }
+    .badge-watched { color: var(--success); border-color: rgba(34, 197, 94, 0.35); }
+    .badge-unwatched { color: var(--warning); border-color: rgba(245, 158, 11, 0.35); }
     .empty-state {
       text-align: center;
       padding: 2.5rem 1rem;
@@ -319,7 +357,7 @@
     }
     .status-msg { font-size: 0.8rem; color: var(--text-muted); }
 
-    /* Modals (Scanner & Cloud Sync) */
+    /* Modals */
     .modal-backdrop {
       display: none;
       position: fixed;
@@ -342,6 +380,19 @@
       gap: 0.75rem;
       box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
     }
+    .edit-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.65rem;
+    }
+    .edit-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .edit-field.full { grid-column: span 2; }
     .viewport-wrapper {
       position: relative;
       overflow: hidden;
@@ -454,19 +505,19 @@
     .binder-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       margin-bottom: 1rem;
     }
     .binder-table th {
       text-align: left;
       background: #e2e8f0;
       color: #0f172a;
-      padding: 0.45rem 0.6rem;
+      padding: 0.45rem 0.55rem;
       border: 1px solid #cbd5e1;
       font-weight: 700;
     }
     .binder-table td {
-      padding: 0.4rem 0.6rem;
+      padding: 0.38rem 0.55rem;
       border: 1px solid #cbd5e1;
       color: #1e293b;
     }
@@ -477,7 +528,7 @@
       text-align: center;
       width: 36px;
     }
-    .binder-check-col { width: 28px; text-align: center; }
+    .binder-check-col { width: 32px; text-align: center; }
 
     /* Print Template 2: Shelf Dividers */
     .divider-sheet {
@@ -537,7 +588,94 @@
 </head>
 <body>
 
-  <!-- Cloud Sync Modal (GitHub Gist Multi-Device Sync) -->
+  <!-- Edit Item Modal -->
+  <div id="editModal" class="modal-backdrop">
+    <div class="modal-box">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h3>✎ Edit Catalog Item</h3>
+        <button type="button" class="btn-secondary" style="padding: 0.3rem 0.65rem;" onclick="closeEditModal()">✕</button>
+      </div>
+
+      <input type="hidden" id="editItemId">
+
+      <div class="edit-grid">
+        <div class="edit-field full">
+          <label>Title</label>
+          <input type="text" id="editTitle" required>
+        </div>
+
+        <div class="edit-field">
+          <label>Franchise / Box-Set Group (Optional)</label>
+          <input type="text" id="editFranchise" placeholder="e.g., Batman, 007, Alien">
+        </div>
+
+        <div class="edit-field">
+          <label>Watch Status</label>
+          <select id="editWatched">
+            <option value="false">⏳ Unwatched (Backlog)</option>
+            <option value="true">✅ Watched</option>
+          </select>
+        </div>
+
+        <div class="edit-field">
+          <label>Category</label>
+          <select id="editMediaType">
+            <option value="movie">🎥 Movie</option>
+            <option value="tv">📺 TV Show</option>
+          </select>
+        </div>
+
+        <div class="edit-field">
+          <label>Format</label>
+          <select id="editFormat">
+            <option value="4K UHD">4K UHD</option>
+            <option value="Blu-ray">Blu-ray</option>
+            <option value="DVD">DVD</option>
+            <option value="Digital">Digital</option>
+            <option value="VHS">VHS</option>
+          </select>
+        </div>
+
+        <div class="edit-field">
+          <label>Seasons / Edition Notes</label>
+          <input type="text" id="editSeasons" placeholder="e.g., Seasons 1-4, Director's Cut">
+        </div>
+
+        <div class="edit-field">
+          <label>Release Year</label>
+          <input type="number" id="editYear" min="1888" max="2099">
+        </div>
+
+        <div class="edit-field">
+          <label>Genre</label>
+          <input type="text" id="editGenre" placeholder="e.g., Sci-Fi, Drama">
+        </div>
+
+        <div class="edit-field">
+          <label>UPC / Barcode</label>
+          <input type="text" id="editUpc" placeholder="Optional barcode">
+        </div>
+
+        <div class="edit-field full">
+          <label>Poster Image URL</label>
+          <input type="text" id="editPoster" placeholder="https://...">
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.25rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <button type="button" class="btn-secondary" style="font-size: 0.8rem; padding: 0.45rem 0.75rem;" onclick="refreshEditMetadata()">🔍 Refresh Info from OMDb</button>
+          <span id="editLookupStatus" class="status-msg"></span>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+          <button type="button" class="btn-secondary" onclick="closeEditModal()">Cancel</button>
+          <button type="button" onclick="saveEditedItem()">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cloud Sync Modal -->
   <div id="syncModal" class="modal-backdrop">
     <div class="modal-box">
       <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -551,7 +689,7 @@
         <label><strong>1. GitHub Personal Access Token (with "gist" scope):</strong></label>
         <input type="password" id="ghTokenInput" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
         <span style="font-size: 0.75rem; color: var(--text-muted);">
-          Create one free in 10 seconds at <a href="https://github.com/settings/tokens/new?scopes=gist&description=MovieCatalogSync" target="_blank" style="color: var(--accent);">github.com/settings/tokens/new</a> (check the <strong>gist</strong> box and click Generate).
+          Create one free at <a href="https://github.com/settings/tokens/new?scopes=gist&description=MovieCatalogSync" target="_blank" style="color: var(--accent);">github.com/settings/tokens/new</a> (check the <strong>gist</strong> box and click Generate).
         </span>
 
         <label style="margin-top: 0.4rem;"><strong>2. Cloud Gist ID (Auto-filled on first Push, or paste on second device):</strong></label>
@@ -559,7 +697,7 @@
 
         <label class="checkbox-label" style="margin-top: 0.25rem;">
           <input type="checkbox" id="autoCloudSync">
-          Automatically push changes to cloud when adding/removing items
+          Automatically push changes to cloud when adding/editing/removing items
         </label>
       </div>
 
@@ -629,7 +767,6 @@
             <option value="VHS">VHS</option>
           </select>
         </div>
-        <!-- Manual UPC or Quick Fallback Input inside Scanner -->
         <div style="display: flex; gap: 0.35rem; flex: 1; max-width: 260px;">
           <input type="text" id="manualScanInput" placeholder="Or type UPC / Title..." style="padding: 0.3rem 0.5rem; font-size: 0.8rem; width: 100%;">
           <button type="button" class="btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;" onclick="handleManualScanInput()">Add</button>
@@ -650,6 +787,7 @@
     <div class="header-left">
       <h1>🎬 A–Z Media Library</h1>
       <div class="stats" id="movieStats">0 Items</div>
+      <div class="stats" id="watchedStats" style="color: var(--success); border-color: rgba(34, 197, 94, 0.3);">0 Watched</div>
     </div>
     <div class="header-actions">
       <button type="button" class="btn-sync" onclick="openSyncModal()">☁️ Cloud Sync <span id="syncBadge"></span></button>
@@ -679,7 +817,8 @@
 
     <form id="movieForm">
       <div class="form-grid">
-        <input type="text" id="titleInput" placeholder="Movie Title (e.g., The Matrix, Alien)" required>
+        <input type="text" id="titleInput" placeholder="Movie Title (e.g., The Dark Knight)" required>
+        <input type="text" id="franchiseInput" placeholder="Franchise / Box Set (e.g., Batman)" title="Group sequels together under a Franchise name in chronological order">
         <select id="formatInput">
           <option value="4K UHD">4K UHD</option>
           <option value="Blu-ray" selected>Blu-ray</option>
@@ -687,7 +826,7 @@
           <option value="Digital">Digital</option>
           <option value="VHS">VHS</option>
         </select>
-        <input type="text" id="seasonInput" placeholder="Edition / Notes (Optional)" title="For TV Shows: e.g., Seasons 1-3, Complete Series">
+        <input type="text" id="seasonInput" placeholder="Edition / Notes" title="For TV Shows: e.g., Seasons 1-3, Complete Series">
         <input type="number" id="yearInput" placeholder="Year" min="1888" max="2099">
         <input type="text" id="genreInput" placeholder="Genre">
       </div>
@@ -705,7 +844,7 @@
   </div>
 
   <div class="controls">
-    <input type="text" id="searchInput" placeholder="Search current tab by title, genre, year, or UPC...">
+    <input type="text" id="searchInput" placeholder="Search title, franchise, genre, year, or UPC...">
     <select id="filterFormat">
       <option value="ALL">All Formats</option>
       <option value="4K UHD">4K UHD</option>
@@ -714,9 +853,18 @@
       <option value="Digital">Digital</option>
       <option value="VHS">VHS</option>
     </select>
+    <select id="filterWatched">
+      <option value="ALL">All Status</option>
+      <option value="UNWATCHED">⏳ Unwatched Backlog</option>
+      <option value="WATCHED">✅ Watched Only</option>
+    </select>
     <label class="checkbox-label">
       <input type="checkbox" id="ignoreArticles" checked>
       Ignore "The / A / An"
+    </label>
+    <label class="checkbox-label" title="Groups titles sharing a Franchise name together and sorts them by Release Year">
+      <input type="checkbox" id="groupByFranchise" checked>
+      Group Franchises Chronologically
     </label>
     <button type="button" class="btn-secondary" onclick="exportCSV()">Export CSV</button>
     <button type="button" class="btn-secondary" onclick="document.getElementById('csvFileInput').click()">Import CSV</button>
@@ -727,15 +875,17 @@
   <div id="catalogContainer"></div>
 
   <script>
-    // Migrate & Load Library Data (Supports both 'movie' and 'tv' types)
+    // Migrate & Load Library Data
     let rawSaved = JSON.parse(localStorage.getItem('myMoviesAZ')) || [];
     let catalog = rawSaved.map(item => ({
       ...item,
       mediaType: item.mediaType || 'movie',
-      seasons: item.seasons || ''
+      seasons: item.seasons || '',
+      franchise: item.franchise || '',
+      watched: Boolean(item.watched)
     }));
 
-    let activeMediaType = 'movie'; // 'movie' or 'tv'
+    let activeMediaType = 'movie';
     let currentLetterFilter = 'ALL';
     let codeReader = null;
     let audioCtx = null;
@@ -749,6 +899,7 @@
     const apiKeyInput = document.getElementById('apiKeyInput');
     const form = document.getElementById('movieForm');
     const titleInput = document.getElementById('titleInput');
+    const franchiseInput = document.getElementById('franchiseInput');
     const formatInput = document.getElementById('formatInput');
     const seasonInput = document.getElementById('seasonInput');
     const yearInput = document.getElementById('yearInput');
@@ -757,7 +908,9 @@
     const barcodeInput = document.getElementById('barcodeInput');
     const searchInput = document.getElementById('searchInput');
     const filterFormat = document.getElementById('filterFormat');
+    const filterWatched = document.getElementById('filterWatched');
     const ignoreArticlesCheckbox = document.getElementById('ignoreArticles');
+    const groupByFranchiseCheckbox = document.getElementById('groupByFranchise');
     const lookupStatus = document.getElementById('lookupStatus');
     const scannerModal = document.getElementById('scannerModal');
     const scannerTarget = document.getElementById('scannerTarget');
@@ -768,6 +921,21 @@
     const printArea = document.getElementById('printArea');
     const printModeSelect = document.getElementById('printModeSelect');
     const printScopeSelect = document.getElementById('printScopeSelect');
+
+    // Edit Modal Elements
+    const editModal = document.getElementById('editModal');
+    const editItemId = document.getElementById('editItemId');
+    const editTitle = document.getElementById('editTitle');
+    const editFranchise = document.getElementById('editFranchise');
+    const editWatched = document.getElementById('editWatched');
+    const editMediaType = document.getElementById('editMediaType');
+    const editFormat = document.getElementById('editFormat');
+    const editSeasons = document.getElementById('editSeasons');
+    const editYear = document.getElementById('editYear');
+    const editGenre = document.getElementById('editGenre');
+    const editUpc = document.getElementById('editUpc');
+    const editPoster = document.getElementById('editPoster');
+    const editLookupStatus = document.getElementById('editLookupStatus');
 
     // Cloud Sync Settings
     const ghTokenInput = document.getElementById('ghTokenInput');
@@ -786,7 +954,6 @@
     ghGistIdInput.addEventListener('input', () => localStorage.setItem('ghSyncGistId', ghGistIdInput.value.trim()));
     autoCloudSync.addEventListener('change', () => localStorage.setItem('ghAutoSync', autoCloudSync.checked));
 
-    // Switch between Movies and TV Shows
     function switchMediaType(type) {
       activeMediaType = type;
       currentLetterFilter = 'ALL';
@@ -798,17 +965,114 @@
       if (type === 'movie') {
         tabMovies.className = 'tab-btn active-movie';
         tabTV.className = 'tab-btn';
-        titleInput.placeholder = 'Movie Title (e.g., The Matrix, Alien)';
-        seasonInput.placeholder = 'Edition / Notes (Optional)';
+        titleInput.placeholder = 'Movie Title (e.g., The Dark Knight)';
+        seasonInput.placeholder = 'Edition / Notes';
         submitBtn.textContent = '+ Add Movie';
       } else {
         tabMovies.className = 'tab-btn';
         tabTV.className = 'tab-btn active-tv';
-        titleInput.placeholder = 'TV Series Title (e.g., Breaking Bad, The Office)';
-        seasonInput.placeholder = 'Seasons (e.g., Season 1-5, Complete)';
+        titleInput.placeholder = 'TV Series Title (e.g., Breaking Bad)';
+        seasonInput.placeholder = 'Seasons (e.g., Season 1-5)';
         submitBtn.textContent = '+ Add TV Show';
       }
       render();
+    }
+
+    // Toggle Watched Status Directly on Card
+    function toggleWatched(id) {
+      const item = catalog.find(m => m.id === id);
+      if (!item) return;
+      item.watched = !item.watched;
+      saveCatalog();
+    }
+
+    // Edit Item Functions
+    function openEditModal(id) {
+      const item = catalog.find(m => m.id === id);
+      if (!item) return;
+
+      editItemId.value = item.id;
+      editTitle.value = item.title || '';
+      editFranchise.value = item.franchise || '';
+      editWatched.value = item.watched ? 'true' : 'false';
+      editMediaType.value = item.mediaType || 'movie';
+      editFormat.value = item.format || 'Blu-ray';
+      editSeasons.value = item.seasons || '';
+      editYear.value = item.year || '';
+      editGenre.value = item.genre || '';
+      editUpc.value = item.upc || '';
+      editPoster.value = item.poster || '';
+      editLookupStatus.textContent = '';
+
+      editModal.style.display = 'flex';
+      editTitle.focus();
+    }
+
+    function closeEditModal() {
+      editModal.style.display = 'none';
+    }
+
+    async function refreshEditMetadata() {
+      const title = editTitle.value.trim();
+      const apiKey = apiKeyInput.value.trim();
+
+      if (!title) {
+        editLookupStatus.textContent = 'Enter a title first.';
+        return;
+      }
+      if (!apiKey) {
+        editLookupStatus.textContent = 'Enter your OMDb API key on the main screen first.';
+        return;
+      }
+
+      editLookupStatus.textContent = 'Searching...';
+      const omdbType = editMediaType.value === 'tv' ? 'series' : 'movie';
+
+      try {
+        const res = await fetch(`https://www.omdbapi.com/?t=${encodeURIComponent(title)}&type=${omdbType}&apikey=${apiKey}`);
+        const data = await res.json();
+
+        if (data.Response === 'True') {
+          editTitle.value = data.Title;
+          editYear.value = data.Year ? data.Year.substring(0, 4) : '';
+          editGenre.value = data.Genre !== 'N/A' ? data.Genre : '';
+          editPoster.value = data.Poster !== 'N/A' ? data.Poster : '';
+          if (editMediaType.value === 'tv' && data.totalSeasons && !editSeasons.value) {
+            editSeasons.value = `${data.totalSeasons} Seasons Total`;
+          }
+          editLookupStatus.textContent = '✓ Refreshed!';
+        } else {
+          editLookupStatus.textContent = data.Error || 'Not found.';
+        }
+      } catch (err) {
+        editLookupStatus.textContent = 'Lookup error.';
+      }
+    }
+
+    function saveEditedItem() {
+      const id = editItemId.value;
+      const newTitle = editTitle.value.trim();
+      if (!newTitle) return alert('Title cannot be empty.');
+
+      const idx = catalog.findIndex(m => m.id === id);
+      if (idx === -1) return;
+
+      catalog[idx] = {
+        ...catalog[idx],
+        title: newTitle,
+        franchise: editFranchise.value.trim(),
+        watched: editWatched.value === 'true',
+        mediaType: editMediaType.value,
+        format: editFormat.value,
+        seasons: editSeasons.value.trim(),
+        year: editYear.value.trim(),
+        genre: editGenre.value.trim(),
+        upc: editUpc.value.trim(),
+        poster: editPoster.value.trim()
+      };
+
+      closeEditModal();
+      saveCatalog();
     }
 
     function playBeep(success = true) {
@@ -844,11 +1108,9 @@
         .trim();
     }
 
-    // CORS-Safe Multi-Fallback Barcode Resolver
     async function fetchBarcodeProductTitle(upc) {
       const targetUrl = `https://api.upcitemdb.com/prod/trial/lookup?upc=${encodeURIComponent(upc)}`;
 
-      // Strategy 1: corsproxy.io wrapper
       try {
         const res1 = await fetch(`https://corsproxy.io/?${encodeURIComponent(targetUrl)}`);
         if (res1.ok) {
@@ -857,7 +1119,6 @@
         }
       } catch (e) {}
 
-      // Strategy 2: AllOrigins JSON wrapper
       try {
         const res2 = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`);
         if (res2.ok) {
@@ -867,7 +1128,6 @@
         }
       } catch (e) {}
 
-      // Strategy 3: Direct fetch (in case browser extension or local host allows it)
       try {
         const res3 = await fetch(targetUrl);
         if (res3.ok) {
@@ -904,7 +1164,6 @@
       if (rawTitle) {
         await finalizeScannedItem(rawTitle, upc);
       } else {
-        // Prompt user inline inside the feed if barcode isn't in public trial DB
         const promptId = 'upc_' + Date.now();
         addFeedMessage(`
           <div style="display:flex; flex-direction:column; gap:0.35rem; width:100%;">
@@ -940,7 +1199,6 @@
     async function finalizeScannedItem(rawTitle, upc) {
       const cleanedTitle = cleanBarcodeTitle(rawTitle);
 
-      // Extract season info if present in raw barcode label
       let detectedSeason = '';
       const seasonMatch = rawTitle.match(/\b(season\s*\d+(?:-\d+)?|complete\s*series)\b/i);
       if (seasonMatch) detectedSeason = seasonMatch[0];
@@ -983,6 +1241,8 @@
         id: Date.now().toString() + Math.random().toString(36).substr(2, 4),
         mediaType: detectedType,
         title: finalTitle,
+        franchise: '',
+        watched: false,
         format: detectedFormat,
         seasons: detectedSeason,
         genre: genre,
@@ -1073,18 +1333,43 @@
       }
     }
 
-    function getSortTitle(title) {
-      let t = (title || '').trim();
+    function stripArticles(str) {
+      let t = (str || '').trim();
       if (ignoreArticlesCheckbox.checked) {
         return t.replace(/^(the|a|an)\s+/i, '');
       }
       return t;
     }
 
-    function getGroupLetter(title) {
-      const sortTitle = getSortTitle(title);
-      if (!sortTitle) return '#';
-      const firstChar = sortTitle.charAt(0).toUpperCase();
+    // Primary Sort Key: Uses Franchise name if Franchise Grouping is checked & present
+    function getPrimarySortKey(item) {
+      if (groupByFranchiseCheckbox.checked && item.franchise && item.franchise.trim()) {
+        return stripArticles(item.franchise);
+      }
+      return stripArticles(item.title);
+    }
+
+    function compareCatalogItems(a, b) {
+      const keyA = getPrimarySortKey(a);
+      const keyB = getPrimarySortKey(b);
+      const primaryCmp = keyA.localeCompare(keyB, undefined, { numeric: true, sensitivity: 'base' });
+      if (primaryCmp !== 0) return primaryCmp;
+
+      // If two items belong to the same Franchise group, sort them chronologically by Release Year
+      if (groupByFranchiseCheckbox.checked && a.franchise && b.franchise &&
+          a.franchise.trim().toLowerCase() === b.franchise.trim().toLowerCase()) {
+        const yearA = parseInt(a.year, 10) || 9999;
+        const yearB = parseInt(b.year, 10) || 9999;
+        if (yearA !== yearB) return yearA - yearB;
+      }
+
+      return stripArticles(a.title).localeCompare(stripArticles(b.title), undefined, { numeric: true, sensitivity: 'base' });
+    }
+
+    function getGroupLetter(item) {
+      const sortKey = getPrimarySortKey(item);
+      if (!sortKey) return '#';
+      const firstChar = sortKey.charAt(0).toUpperCase();
       return /^[A-Z]$/.test(firstChar) ? firstChar : '#';
     }
 
@@ -1105,6 +1390,8 @@
         id: Date.now().toString(),
         mediaType: activeMediaType,
         title,
+        franchise: franchiseInput.value.trim(),
+        watched: false,
         format: formatInput.value,
         seasons: seasonInput.value.trim(),
         genre: genreInput.value.trim(),
@@ -1133,7 +1420,7 @@
       render();
     }
 
-    // Cloud Sync Functions (GitHub Gist API)
+    // Cloud Sync Functions
     function openSyncModal() {
       document.getElementById('syncModal').style.display = 'flex';
     }
@@ -1197,7 +1484,7 @@
       const gistId = ghGistIdInput.value.trim();
 
       if (!gistId) {
-        syncStatusBox.textContent = '⚠️ Enter your Cloud Gist ID (or find itAutomatically...Searching...)';
+        syncStatusBox.textContent = 'Searching for existing cloud backup...';
         if (token) await findExistingSyncGist(token);
         return;
       }
@@ -1217,7 +1504,13 @@
 
         const parsed = JSON.parse(fileObj.content);
         if (Array.isArray(parsed.catalog)) {
-          catalog = parsed.catalog;
+          catalog = parsed.catalog.map(item => ({
+            ...item,
+            mediaType: item.mediaType || 'movie',
+            seasons: item.seasons || '',
+            franchise: item.franchise || '',
+            watched: Boolean(item.watched)
+          }));
           localStorage.setItem('myMoviesAZ', JSON.stringify(catalog));
           render();
           const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -1266,7 +1559,7 @@
         return (item.mediaType || 'movie') === scope;
       });
 
-      const sorted = [...filteredScope].sort((a, b) => getSortTitle(a.title).localeCompare(getSortTitle(b.title), undefined, { numeric: true, sensitivity: 'base' }));
+      const sorted = [...filteredScope].sort(compareCatalogItems);
 
       printArea.innerHTML = '';
 
@@ -1294,11 +1587,12 @@
 
         const buildSectionTable = (sectionTitle, items, isTV) => {
           if (items.length === 0) return '';
-          let rowsHtml = items.map((item, idx) => `
+          let rowsHtml = items.map(item => `
             <tr>
-              <td class="binder-check-col">☐</td>
-              <td class="binder-letter-badge">${getGroupLetter(item.title)}</td>
+              <td class="binder-check-col">${item.watched ? '☑' : '☐'}</td>
+              <td class="binder-letter-badge">${getGroupLetter(item)}</td>
               <td style="font-weight: 600;">${item.title}</td>
+              <td>${item.franchise || '—'}</td>
               <td>${item.format || ''}</td>
               ${isTV ? `<td>${item.seasons || '—'}</td>` : ''}
               <td>${item.year || '—'}</td>
@@ -1311,9 +1605,10 @@
             <table class="binder-table">
               <thead>
                 <tr>
-                  <th class="binder-check-col">✓</th>
+                  <th class="binder-check-col">Seen</th>
                   <th class="binder-letter-badge">A-Z</th>
                   <th>Title</th>
+                  <th>Franchise / Group</th>
                   <th>Format</th>
                   ${isTV ? '<th>Seasons / Edition</th>' : ''}
                   <th>Year</th>
@@ -1340,7 +1635,7 @@
         const alphabet = ['#', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')];
         const grouped = {};
         alphabet.forEach(l => grouped[l] = []);
-        sorted.forEach(m => grouped[getGroupLetter(m.title)].push(m));
+        sorted.forEach(m => grouped[getGroupLetter(m)].push(m));
 
         const container = document.createElement('div');
         container.className = 'divider-sheet';
@@ -1395,36 +1690,44 @@
     function render() {
       const searchQuery = searchInput.value.toLowerCase();
       const formatFilter = filterFormat.value;
+      const watchedFilter = filterWatched.value;
 
       const totalMovies = catalog.filter(m => (m.mediaType || 'movie') === 'movie').length;
       const totalTV = catalog.filter(m => m.mediaType === 'tv').length;
+      const totalWatched = catalog.filter(m => m.watched).length;
+
       document.getElementById('countMovies').textContent = totalMovies;
       document.getElementById('countTV').textContent = totalTV;
+      document.getElementById('watchedStats').textContent = `${totalWatched} / ${catalog.length} Watched`;
 
       const tabItems = catalog.filter(m => (m.mediaType || 'movie') === activeMediaType);
 
       const filtered = tabItems.filter(m => {
         const matchesSearch = m.title.toLowerCase().includes(searchQuery) ||
+                              (m.franchise && m.franchise.toLowerCase().includes(searchQuery)) ||
                               (m.genre && m.genre.toLowerCase().includes(searchQuery)) ||
                               (m.seasons && m.seasons.toLowerCase().includes(searchQuery)) ||
                               (m.year && m.year.toString().includes(searchQuery)) ||
                               (m.upc && m.upc.includes(searchQuery));
         const matchesFormat = formatFilter === 'ALL' || m.format === formatFilter;
-        return matchesSearch && matchesFormat;
+        const matchesWatched = watchedFilter === 'ALL' ||
+                               (watchedFilter === 'WATCHED' && m.watched) ||
+                               (watchedFilter === 'UNWATCHED' && !m.watched);
+        return matchesSearch && matchesFormat && matchesWatched;
       });
 
-      filtered.sort((a, b) => getSortTitle(a.title).localeCompare(getSortTitle(b.title), undefined, { numeric: true, sensitivity: 'base' }));
+      filtered.sort(compareCatalogItems);
 
       const grouped = {};
       const alphabet = ['#', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')];
       alphabet.forEach(l => grouped[l] = []);
 
       filtered.forEach(m => {
-        const letter = getGroupLetter(m.title);
+        const letter = getGroupLetter(m);
         grouped[letter].push(m);
       });
 
-      document.getElementById('movieStats').textContent = `${ totalMovies + totalTV } Total (${filtered.length} Shown)`;
+      document.getElementById('movieStats').textContent = `${totalMovies + totalTV} Total (${filtered.length} Shown)`;
 
       const azBar = document.getElementById('azBar');
       azBar.innerHTML = '';
@@ -1469,7 +1772,7 @@
 
         group.forEach(item => {
           const card = document.createElement('div');
-          card.className = 'movie-item';
+          card.className = `movie-item ${item.watched ? 'watched-card' : 'unwatched-card'}`;
 
           const img = document.createElement('img');
           img.className = 'poster-img';
@@ -1496,6 +1799,13 @@
           formatEl.textContent = item.format;
           badges.appendChild(formatEl);
 
+          if (item.franchise) {
+            const franEl = document.createElement('span');
+            franEl.className = 'badge badge-franchise';
+            franEl.textContent = `🗂️ ${item.franchise}`;
+            badges.appendChild(franEl);
+          }
+
           if (item.seasons) {
             const seasonEl = document.createElement('span');
             seasonEl.className = 'badge badge-season';
@@ -1510,23 +1820,39 @@
             badges.appendChild(yearEl);
           }
 
-          if (item.genre) {
-            const genreEl = document.createElement('span');
-            genreEl.className = 'badge';
-            genreEl.textContent = item.genre.split(',')[0];
-            badges.appendChild(genreEl);
-          }
+          const watchBadge = document.createElement('span');
+          watchBadge.className = `badge ${item.watched ? 'badge-watched' : 'badge-unwatched'}`;
+          watchBadge.textContent = item.watched ? 'Watched' : 'Unwatched';
+          badges.appendChild(watchBadge);
 
           details.appendChild(badges);
           card.appendChild(details);
 
+          const actions = document.createElement('div');
+          actions.className = 'card-actions';
+
+          const watchBtn = document.createElement('button');
+          watchBtn.className = `btn-icon ${item.watched ? 'btn-watched' : ''}`;
+          watchBtn.textContent = item.watched ? '✓' : '👁️';
+          watchBtn.title = item.watched ? 'Mark as Unwatched' : 'Mark as Watched';
+          watchBtn.onclick = () => toggleWatched(item.id);
+
+          const editBtn = document.createElement('button');
+          editBtn.className = 'btn-icon';
+          editBtn.textContent = '✎';
+          editBtn.title = 'Edit item';
+          editBtn.onclick = () => openEditModal(item.id);
+
           const delBtn = document.createElement('button');
           delBtn.className = 'btn-danger';
           delBtn.textContent = '✕';
-          delBtn.title = 'Remove';
+          delBtn.title = 'Remove item';
           delBtn.onclick = () => deleteItem(item.id);
 
-          card.appendChild(delBtn);
+          actions.appendChild(watchBtn);
+          actions.appendChild(editBtn);
+          actions.appendChild(delBtn);
+          card.appendChild(actions);
           grid.appendChild(card);
         });
 
@@ -1535,18 +1861,20 @@
       });
 
       if (!hasRenderedAny) {
-        container.innerHTML = `<div class="empty-state">No ${activeMediaType === 'movie' ? 'movies' : 'TV shows'} found in this view. Add or scan one above!</div>`;
+        container.innerHTML = `<div class="empty-state">No ${activeMediaType === 'movie' ? 'movies' : 'TV shows'} match your current filter.</div>`;
       }
     }
 
     function exportCSV() {
       if (catalog.length === 0) return alert('No items to export!');
-      const headers = ['Type', 'Letter', 'Title', 'Format', 'Seasons', 'Year', 'Genre', 'UPC', 'PosterURL'];
-      const sorted = [...catalog].sort((a, b) => getSortTitle(a.title).localeCompare(getSortTitle(b.title)));
+      const headers = ['Type', 'Letter', 'Title', 'Franchise', 'Watched', 'Format', 'Seasons', 'Year', 'Genre', 'UPC', 'PosterURL'];
+      const sorted = [...catalog].sort(compareCatalogItems);
       const rows = sorted.map(m => [
         m.mediaType || 'movie',
-        getGroupLetter(m.title),
+        getGroupLetter(m),
         `"${(m.title || '').replace(/"/g, '""')}"`,
+        `"${(m.franchise || '').replace(/"/g, '""')}"`,
+        m.watched ? 'Yes' : 'No',
         `"${(m.format || '').replace(/"/g, '""')}"`,
         `"${(m.seasons || '').replace(/"/g, '""')}"`,
         m.year || '',
@@ -1574,11 +1902,27 @@
         for (let i = 1; i < lines.length; i++) {
           const cols = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
           const clean = cols.map(c => c.replace(/^"|"$/g, '').replace(/""/g, '"').trim());
-          if (clean.length >= 8) {
+          if (clean.length >= 10) {
             catalog.push({
               id: Date.now().toString() + i,
               mediaType: clean[0] === 'tv' ? 'tv' : 'movie',
               title: clean[2],
+              franchise: clean[3] || '',
+              watched: /^yes|true|1$/i.test(clean[4]),
+              format: clean[5] || 'Blu-ray',
+              seasons: clean[6] || '',
+              year: clean[7] || '',
+              genre: clean[8] || '',
+              upc: clean[9] || '',
+              poster: clean[10] || ''
+            });
+          } else if (clean.length >= 8) {
+            catalog.push({
+              id: Date.now().toString() + i,
+              mediaType: clean[0] === 'tv' ? 'tv' : 'movie',
+              title: clean[2],
+              franchise: '',
+              watched: false,
               format: clean[3] || 'Blu-ray',
               seasons: clean[4] || '',
               year: clean[5] || '',
@@ -1586,22 +1930,6 @@
               upc: clean[7] || '',
               poster: clean[8] || ''
             });
-          } else {
-            const offset = clean.length >= 7 ? 1 : 0;
-            const title = clean[0 + offset];
-            if (title) {
-              catalog.push({
-                id: Date.now().toString() + i,
-                mediaType: activeMediaType,
-                title: title,
-                format: clean[1 + offset] || 'Blu-ray',
-                seasons: '',
-                year: clean[2 + offset] || '',
-                genre: clean[3 + offset] || '',
-                upc: clean[4 + offset] || '',
-                poster: clean[5 + offset] || ''
-              });
-            }
           }
         }
         saveCatalog();
@@ -1612,7 +1940,9 @@
 
     searchInput.addEventListener('input', render);
     filterFormat.addEventListener('change', render);
+    filterWatched.addEventListener('change', render);
     ignoreArticlesCheckbox.addEventListener('change', render);
+    groupByFranchiseCheckbox.addEventListener('change', render);
 
     render();
   </script>
